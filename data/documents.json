@@ -1,0 +1,17 @@
+[
+  {
+    "doc_id": "1",
+    "title": "Google Search Results",
+    "content": "The most popular search engine in the world, handling over 40,000 search queries every second."
+  },
+  {
+    "doc_id": "2",
+    "title": "Bing Search Engine",
+    "content": "A search engine developed by Microsoft, providing a unique search experience with rewards for frequent users."
+  },
+  {
+    "doc_id": "3",
+    "title": "DuckDuckGo Privacy",
+    "content": "A privacy-focused search engine that doesn't track users' online activities, providing a secure search experience."
+  }
+]

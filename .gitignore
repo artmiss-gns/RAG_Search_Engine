@@ -1,0 +1,17 @@
+# Python specific files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Whoosh index files
+indexes/*
+
+# Virtual environment files
+venv/
+.env/
+
+# IDE and editor files
+.vscode/
+.idea/
+pytest_cache/
