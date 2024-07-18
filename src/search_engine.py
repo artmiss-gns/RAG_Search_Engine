@@ -67,7 +67,7 @@ def main():
     else :
         index = create_index(index_dir, doc_dir)
 
-    query_str = input(f"Enter your search query: ")
+    query_str = input("Enter your search query: ")
     results_list = search_index(index, query_str)
 
     with open(doc_dir, 'r') as f:
