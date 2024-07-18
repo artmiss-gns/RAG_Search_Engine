@@ -52,22 +52,23 @@ class SearchEngine:
         return results_list
 
 
-    def __call__(self):
+    def __call__(self, query_str):
         if not self.index_dir.exists():
             self.create_index()
         else:
             self.load_index()
 
-        query_str = input("Enter your search query: ")
+        
         results_list = self.search_index(query_str)
 
         for hit in results_list:
             yield {
                 'title': hit["title"],
-                'content': self.documents[int(hit['doc_id'])]['content']
+                'content': self.documents[int(hit['doc_id'])-1]['content'] # minus one is because doc_id starts from 1
             }
 
 
 if __name__ == '__main__':
     search_engine = SearchEngine('./indexes', './data/documents.json')
-    print(*list(search_engine()))
+    query_str = input("Enter your search query: ")
+    print(*list(search_engine(query_str)))
