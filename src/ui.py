@@ -1,49 +1,66 @@
 from pathlib import Path
 import json
 import streamlit as st
-from search_engine import create_index, load_index, search_index
+from src.llm import client
+from src.search_engine import SearchEngine
 
 INDEX_DIR = Path("./indexes")
 DOC_DIR = Path("./data/documents.json")
 
 @st.cache_resource()
-def set_index():
+def create_engine():
+    search_engine = SearchEngine(INDEX_DIR, DOC_DIR)
     if not INDEX_DIR.exists():
-        index = create_index(INDEX_DIR, DOC_DIR)
         st.success(f"Index created at {INDEX_DIR}")
         print("Creating index")
     else:
-        index = load_index(INDEX_DIR)
         st.success(f"Index loaded from {INDEX_DIR}")
         print("Loading index")
-    return index
+    return search_engine
 
-@st.cache_data()
-def load_doc(doc_path):
-    with open(doc_path, "r") as f:
-        documents = json.load(f)
-    return documents
+search_engine = create_engine()
+
+
+# @st.cache_data()
+# def load_doc(doc_path):
+#     with open(doc_path, "r") as f:
+#         documents = json.load(f)
+#     return documents
 
 st.title("Whoosh Search Engine")
-query_input = st.text_input("Search:", value="")
+keyword = st.text_input("keyword:", value="", key="keyword")
+question = st.text_input("Search:", value="", key="query_input")
 search_button = st.button("Search")
 
 # button to re-create the index
 st.sidebar.header("Index Management")
 with st.sidebar:
     if st.button("Re-create index"):
-        index = create_index(INDEX_DIR, DOC_DIR)
+        search_engine.create_index() # ! should i update it ? or just recreate it 
         st.success(f"Index created at {INDEX_DIR}")
 
 
 if search_button:
-    index = set_index()
-    results = search_index(index, query_input)
-    documents = load_doc(DOC_DIR)
+    results = search_engine(keyword)
+    context = list(search_engine(keyword))
+    context = [f"{result['title']}:{result['content']}" for result in context]
+    prompt = f"""Answer ONLY based on the given Context.Don't add additional info, your only source is the context i give you.
+Context: {context}
+Question: {question}"""
+    
+    chat_completion = client.chat.completions.create(
+    messages=[
+        {
+            "role": "user",
+            "content": prompt,
+            }
+        ],
+        model="llama3-8b-8192",
+    )
 
-    # Display the search results
+    answer = chat_completion.choices[0].message.content
+    
+    # chatbot answers
     st.header("Search Results")
-    for hit in results:
-        st.write(f"**{hit['title']}**")
-        st.write(documents[int(hit['doc_id'])]['content'])
-        st.write("---")
+    st.write(answer)
+    

@@ -14,6 +14,11 @@ class SearchEngine:
         with open(self.doc_dir, 'r') as f:
              self.documents = json.load(f)
 
+        if not self.index_dir.exists():
+            self.create_index()
+        else:
+            self.load_index()
+
     def create_index(self):
         self.index_dir.mkdir(exist_ok=True)
         # re-open docs, since it might have been modified
@@ -52,13 +57,7 @@ class SearchEngine:
         return results_list
 
 
-    def __call__(self, query_str):
-        if not self.index_dir.exists():
-            self.create_index()
-        else:
-            self.load_index()
-
-        
+    def __call__(self, query_str):        
         results_list = self.search_index(query_str)
 
         for hit in results_list:
